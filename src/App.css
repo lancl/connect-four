@@ -14,13 +14,8 @@
 
 .board {
   margin: 25px;
-  display: flex;
-  flex-direction: column;
-}
-
-.board-row:after {
-  display: flex;
-  /* clear: both; */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .square {
@@ -29,6 +24,8 @@
   width: 50px;
   margin-right: 1px;
   margin-top: 1px;
+  font-size: 24px;
+  vertical-align: middle;
 }
 
 .square:focus {

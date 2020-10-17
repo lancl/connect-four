@@ -6,9 +6,9 @@
 import React from "react";
 
 const Square = ({ value, onClick }) => (
-  <button className="square" onClick={onClick}>
+  <td className="square" onClick={onClick}>
     {value}
-  </button>
+  </td>
 );
 
 export default Square;

@@ -10,8 +10,8 @@ import Square from "./Square";
 
 // About: the default board is one with 6 rows and 7 columns
 // Note: the sizes for rows and columns can be easily customized for bigger boards
-const ROW_LEN = 3;
-const COL_LEN = 3;
+const ROW_LEN = 6;
+const COL_LEN = 7;
 const TOTAL_INDICES = ROW_LEN * COL_LEN;
 
 class Board extends React.Component {
@@ -49,18 +49,11 @@ class Board extends React.Component {
         );
         currentRow.push(currentSquare);
       }
-      output.push(<div className="board-row">{currentRow}</div>);
+      output.push(<tr>{currentRow}</tr>);
     }
 
     return output;
   };
-
-  // renderSquare = (sIndex, c) => (
-  //   <Square
-  //     value={this.state.squares[sIndex]}
-  //     onClick={() => this.handleClick(c)} // 'c' for column's index
-  //   />
-  // );
 
   // About: handle a player's click on the board
   // Parameters: square index, column index
@@ -89,20 +82,11 @@ class Board extends React.Component {
   };
 
   render() {
-    return <div className="board">{this.renderBoard()}</div>;
-    // return (
-    //   <div>
-    //     <div className="board-row">
-    //       {this.renderSquare(0, 0)}
-    //       {this.renderSquare(1, 1)}
-    //     </div>
-
-    //     <div className="board-row">
-    //       {this.renderSquare(2, 0)}
-    //       {this.renderSquare(3, 1)}
-    //     </div>
-    //   </div>
-    // );
+    return (
+      <div>
+        <table className="board">{this.renderBoard()}</table>
+      </div>
+    );
   }
 }
 
