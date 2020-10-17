@@ -2,15 +2,13 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## About: game player wins, when connecting 4 pieces
-
-Four in a line rules:
+## Game rules: four in a line
 
 - Point the cursor over the row you wish to drop your piece in.
 - Left click to drop your piece
 - When you can connect four pieces vertically, horizontally or diagonally you win
 
-## More about my game
+## Advanced feature of my game
 
 The dimension of the board can be customized, simply by adjusting the 2 variables (ROW_LEN and COL_LEN) in Board.js.
 
@@ -22,4 +20,4 @@ The dimension of the board can be customized, simply by adjusting the 2 variable
 
 ## Screenshot of the app
 
-![index](./screenshot_connect_4.jpeg)
+![index](./screenshot_connect_4.jpg)
