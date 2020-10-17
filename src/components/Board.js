@@ -1,8 +1,5 @@
 /**
- * Game rules:
- * (1) 2 players: X and Y; X starts playing, then the two take turns
- *
- * [Todo] Add logic from calculateWinner()
+ * About: the main component of this game/app
  */
 
 import React from "react";
@@ -21,11 +18,12 @@ class Board extends React.Component {
       squares: Array(TOTAL_INDICES).fill(null),
       xIsNext: true, // Player X plays first
       columns: Array(COL_LEN).fill(ROW_LEN - 1), // The first available row # in each column
+      winner: null, // One of the 2 players
     };
   }
 
   /**
-   * The methods are as below
+   * Below are the methods (and helper functions)
    */
 
   // About: helper function, to derive square's index per row index and col index
@@ -58,7 +56,12 @@ class Board extends React.Component {
   // About: handle a player's click on the board
   // Parameters: square index, column index
   handleClick = (cIndex) => {
-    // window.alert(`Button is clicked!`);
+    // Step: check if there is already a winner
+    if (this.state.winner !== null) {
+      window.alert(`Game over! Winner is ${this.state.winner}.`);
+      return;
+    }
+
     // Step; check if current column is full
     const rIndex = this.state.columns[cIndex]; // The first available row's index
     if (rIndex < 0) return;
@@ -70,20 +73,111 @@ class Board extends React.Component {
     const columns = this.state.columns.slice();
 
     // Step: update the copies of states
-    squares[sIndex] = this.state.xIsNext ? "X" : "O"; // Determine the current player
+    const player = this.state.xIsNext ? "X" : "O"; // Determine the current player
+    squares[sIndex] = player;
     columns[cIndex] -= 1; // Move the avaiable spot per column up by 1 row
+
+    // Step: check if current player just won
+    let winner = null;
+    if (this.checkIfPlayerWin(rIndex, cIndex, player, squares)) {
+      winner = player;
+    }
 
     // Step: update the states
     this.setState({
       squares: squares,
       xIsNext: !this.state.xIsNext,
       columns: columns,
+      winner: winner,
     });
   };
+
+  // About: check if there is a winner, after each turn
+  // Input: row and col indices, of the most recent ball
+  checkIfPlayerWin = (r, c, player, squares) => {
+    // If this player wins on any of the 4 lines
+    if (this.hasHorizontalWin(r, c, player, squares)) return true;
+    if (this.hasVerticallWin(r, c, player, squares)) return true;
+    if (this.hashDiagonalWin(r, c, player, squares)) return true;
+    if (this.hasAntiDiaWin(r, c, player, squares)) return true;
+
+    return false; // ELse this player has not won (yet)
+  };
+
+  // About: helper function; if a pair of indices are within the bound of the board
+  isInBound = (r, c) => {
+    if (r < 0) return false;
+    if (r >= ROW_LEN) return false;
+    if (c < 0) return false;
+    if (c >= COL_LEN) return false;
+    return true;
+  };
+
+  // About: helper function, for all 4 lines' winner check
+  hasWinOnLine = (
+    r,
+    c,
+    player,
+    squares,
+    rDelta1,
+    cDelta1,
+    rDelta2,
+    cDelta2
+  ) => {
+    let counter = 1;
+    // For square 1
+    let r1 = r + rDelta1,
+      c1 = c + cDelta1;
+    // For square 2
+    let r2 = r + rDelta2,
+      c2 = c + cDelta2;
+
+    while (this.isInBound(r1, c1) || this.isInBound(r2, c2)) {
+      if (this.isInBound(r1, c1)) {
+        const sIndex1 = this.getSquareIndex(r1, c1);
+        if (squares[sIndex1] && squares[sIndex1] === player) {
+          counter++;
+          r1 = r1 + rDelta1;
+          c1 = c1 + cDelta1;
+        } else {
+          r1 = -1;
+        }
+      }
+      if (this.isInBound(r2, c2)) {
+        const sIndex2 = this.getSquareIndex(r2, c2);
+        if (squares[sIndex2] && squares[sIndex2] === player) {
+          counter++;
+          r2 = r2 + rDelta2;
+          c2 = c2 + cDelta2;
+        } else {
+          r2 = -1;
+        }
+      }
+      if (counter === 4) return true;
+    }
+
+    return false;
+  };
+
+  // About: helper function, for calculateWinner()
+  hasHorizontalWin = (r, c, player, squares) =>
+    this.hasWinOnLine(r, c, player, squares, 0, -1, 0, 1);
+
+  // About: helper function, for calculateWinner()
+  hasVerticallWin = (r, c, player, squares) =>
+    this.hasWinOnLine(r, c, player, squares, -1, 0, 1, 0);
+
+  // About: helper function, for calculateWinner()
+  hashDiagonalWin = (r, c, player, squares) =>
+    this.hasWinOnLine(r, c, player, squares, 1, 1, -1, -1);
+
+  hasAntiDiaWin = (r, c, player, squares) =>
+    this.hasWinOnLine(r, c, player, squares, 1, -1, -1, 1);
 
   render() {
     return (
       <div>
+        <p>Winner: {this.state.winner}</p>
         <table className="board">{this.renderBoard()}</table>
       </div>
     );

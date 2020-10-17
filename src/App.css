@@ -31,3 +31,11 @@
 .square:focus {
   outline: none;
 }
+
+.orange {
+  background-color: orange;
+}
+
+.blue {
+  background-color: #add8e6;
+}
