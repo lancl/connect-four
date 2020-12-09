@@ -25,5 +25,10 @@ The dimension of the board can be customized, simply by adjusting the 2 variable
 
 ## Screenshot of the app
 
-![index](./screenshot_1.png_)
-![index](./screenshot_2.png_)
+### Default Board Size
+
+![](./screenshot_1.png)
+
+### Adjusted Board Size
+
+![](./screenshot_2.png)
