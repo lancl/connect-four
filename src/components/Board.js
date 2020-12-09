@@ -6,43 +6,75 @@ import React from "react";
 import Square from "./Square";
 
 // About: the default board is one with 6 rows and 7 columns
-// Note: the sizes for rows and columns can be easily customized for bigger boards
 const ROW_LEN = 6;
 const COL_LEN = 7;
-const TOTAL_INDICES = ROW_LEN * COL_LEN;
+
+const NUMBER_TO_CONNECT = 4;
 
 class Board extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      squares: Array(TOTAL_INDICES).fill(null),
+      rowLen: ROW_LEN,
+      colLen: COL_LEN,
+      totalIndices: 0,
+      squares: [], // 1D representation of the board
+      columns: [], // The first available row # in each column
       xIsNext: true, // Player X plays first
-      columns: Array(COL_LEN).fill(ROW_LEN - 1), // The first available row # in each column
       winner: null, // One of the 2 players
+      adjustedRowLen: ROW_LEN,
+      adjustedColLen: COL_LEN,
     };
   }
+
+  componentDidMount() {
+    console.log(`[component Did Mount]`);
+    this.initGame();
+  }
+
+  // About: initialize a game, based on row len and col len
+  initGame = () => {
+    console.log(`[initGame]`);
+    let { rowLen, colLen, adjustedRowLen, adjustedColLen } = this.state;
+
+    // Adjust rowLen and colLen, if needed
+    if (rowLen !== adjustedRowLen) rowLen = adjustedRowLen;
+    if (colLen !== adjustedColLen) colLen = adjustedColLen;
+
+    // Update/initialize the states
+    this.setState({
+      rowLen,
+      colLen,
+      totalIndices: rowLen * colLen,
+      squares: new Array(rowLen * colLen).fill(null),
+      columns: new Array(colLen).fill(rowLen - 1),
+      xIsNext: true,
+      winner: null,
+    });
+  };
 
   /**
    * Below are the methods (and helper functions)
    */
 
   // About: helper function, to derive square's index per row index and col index
-  getSquareIndex = (r, c) => r * COL_LEN + c;
+  getSquareIndex = (r, c) => r * this.state.colLen + c;
 
   // About: render a board, with r rows and c cols
+  // Note: board refreshes when any of the 3 states changes
   renderBoard = () => {
-    // console.log(`### Rendering the board!`)
+    const { squares, rowLen, colLen } = this.state;
     const output = [];
 
-    for (let r = 0; r < ROW_LEN; r++) {
+    for (let r = 0; r < rowLen; r++) {
       const currentRow = [];
-      for (let c = 0; c < COL_LEN; c++) {
+      for (let c = 0; c < colLen; c++) {
         const sIndex = this.getSquareIndex(r, c);
         const currentSquare = (
           // Note:'sIndex' is passed as a closure variable
           <Square
-            value={this.state.squares[sIndex]}
-            onClick={() => this.handleClick(c)} // 'c' for column's index
+            value={squares[sIndex]}
+            onClick={() => this.handleClickOnBoard(c)} // 'c' for column's index
           />
         );
         currentRow.push(currentSquare);
@@ -55,35 +87,37 @@ class Board extends React.Component {
 
   // About: handle a player's click on the board
   // Parameters: square index, column index
-  handleClick = (cIndex) => {
-    // Step: check if there is already a winner
+  handleClickOnBoard = (cIndex) => {
+    console.log(`###### Handling click on board; cIndex: ${cIndex}`);
+
+    // Step 1: check if there is already a winner
     if (this.state.winner !== null) {
       window.alert(`Game over! Winner is ${this.state.winner}.`);
       return;
     }
 
-    // Step; check if current column is full
+    // Step 2: check if current column is full
     const rIndex = this.state.columns[cIndex]; // The first available row's index
     if (rIndex < 0) return;
     // Else (column is available): then determine the square index to update
     const sIndex = this.getSquareIndex(rIndex, cIndex);
 
-    // Step: make a copy of the current states
+    // Step 3: make a copy of the current states
     const squares = this.state.squares.slice();
     const columns = this.state.columns.slice();
 
-    // Step: update the copies of states
+    // Step 4: update the copies of states
     const player = this.state.xIsNext ? "X" : "O"; // Determine the current player
     squares[sIndex] = player;
     columns[cIndex] -= 1; // Move the avaiable spot per column up by 1 row
 
-    // Step: check if current player just won
+    // Step 5: check if current player just won
     let winner = null;
     if (this.checkIfPlayerWin(rIndex, cIndex, player, squares)) {
       winner = player;
     }
 
-    // Step: update the states
+    // Step 6: update the states
     this.setState({
       squares: squares,
       xIsNext: !this.state.xIsNext,
@@ -106,10 +140,11 @@ class Board extends React.Component {
 
   // About: helper function; if a pair of indices are within the bound of the board
   isInBound = (r, c) => {
+    const { rowLen, colLen } = this.state;
     if (r < 0) return false;
-    if (r >= ROW_LEN) return false;
+    if (r >= rowLen) return false;
     if (c < 0) return false;
-    if (c >= COL_LEN) return false;
+    if (c >= colLen) return false;
     return true;
   };
 
@@ -153,7 +188,7 @@ class Board extends React.Component {
           r2 = -1;
         }
       }
-      if (counter === 4) return true;
+      if (counter === NUMBER_TO_CONNECT) return true;
     }
 
     return false;
@@ -174,21 +209,53 @@ class Board extends React.Component {
   hasAntiDiaWin = (r, c, player, squares) =>
     this.hasWinOnLine(r, c, player, squares, 1, -1, -1, 1);
 
+  /**
+   * Below are the methods related to adjusting board size
+   */
+
+  updateRowSize = (event) => {
+    console.log(`[updateRowSize]`);
+    this.setState({ adjustedRowLen: Number.parseInt(event.target.value) });
+  };
+
+  updateColSize = (event) =>
+    this.setState({ adjustedColLen: Number.parseInt(event.target.value) });
+
+  handleSubmit = (event) => {
+    this.initGame();
+    event.preventDefault();
+  };
+
   render() {
+    // debugger;
+    console.log(`[render]`);
     return (
       <div>
-        <p>Winner: {this.state.winner}</p>
+        <h2>Winner: {this.state.winner}</h2>
         <table className="board">{this.renderBoard()}</table>
+        <div className="adjust-size">
+          <p>Adjust board size and start a new game (default is 6 by 7): </p>
+          <form>
+            <input
+              name="rows"
+              placeholder="Rows"
+              onChange={this.updateRowSize}
+            ></input>
+            <input
+              name="cols"
+              placeholder="Columns"
+              onChange={this.updateColSize}
+            ></input>
+            <input
+              type="submit"
+              value="Submit"
+              onClick={this.handleSubmit}
+            ></input>
+          </form>
+        </div>
       </div>
     );
   }
 }
 
 export default Board;
-
-// Note: somehow, Instant app's more concise version of 'state' does not work here (maybe
-// it is due to some webpack config)
-// state = {
-//   squares: Array(TOTAL_INDICES).fill(null),
-//   xIsNext: true, // Player X plays first
-// };

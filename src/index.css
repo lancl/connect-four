@@ -12,6 +12,9 @@ code {
     monospace;
 }
 
-p {
-  font-size: 30px;
+input {
+  font-size: 15px;
+  margin-left: 8px;
+  margin-top: 1px;
+  width: 75px;
 }

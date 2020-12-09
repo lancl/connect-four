@@ -13,9 +13,11 @@
 }
 
 .board {
-  margin: 25px;
   margin-left: auto;
   margin-right: auto;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  background-color: lightgray;
 }
 
 .square {
@@ -38,4 +40,8 @@
 
 .blue {
   background-color: #add8e6;
+}
+
+.adjust-size {
+  font-size: 15px;
 }
